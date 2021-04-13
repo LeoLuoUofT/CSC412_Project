@@ -4,12 +4,14 @@ import os
 import numpy as np
 
 
-# This is where you should put your midi files
-source_folder = 'data/original/'
+# This is where you should put your midi files. This is manually set in the script
+#source_folder = 'small_data/'
 
 # fast way to import data once you have preprocessed them and saved in a pickle file
-pickle_load_path = 'pickles/'
+#pickle_load_path = 'small_pickles/'
 
+# where to store pickle files if save_imported_midi_as_pickle is True
+# pickle_store_folder = 'pickles/'
 #------------------------------------
 # Generation parameters
 #------------------------------------
@@ -33,7 +35,7 @@ do_not_sample_in_evaluation = True
 
 
 # Folder names or file names will be classified by those labels
-classes = ['style1', 'style2'] #list of strings like 'Bach', 'Mozart'. Name a folder in your source_folder like that and make sure there are no files with that name
+classes = ['Classic', 'Jazz', 'Pop'] #list of strings like 'Bach', 'Mozart'. Name a folder in your source_folder like that and make sure there are no files with that name
 
 #whether to include unknown classes as a third class
 include_unknown = False 
@@ -51,10 +53,10 @@ test_train_set = False
 
 t = str(int(round(time.time())))
 
-#activate the fast route to not always have to preprocess midi files
-load_from_pickle_instead_of_midi = False
+#activate the fast route to not always have to preprocess midi files. Only set to false on first run
+load_from_pickle_instead_of_midi = True
 
-save_imported_midi_as_pickle = True
+save_imported_midi_as_pickle = False
 if save_imported_midi_as_pickle:
     pickle_store_folder = 'pickles/' + t + "/" #folder where pickles are stored (!= where loaded)
     if not os.path.exists(pickle_store_folder):

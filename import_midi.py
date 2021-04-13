@@ -16,9 +16,7 @@ def load_rolls(path, name):
     # if it fails, return all None objects
     try:
         mid = pm.PrettyMIDI(path + name)
-    except (
-    ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError,
-    AttributeError) as e:
+    except (Exception) as e:
         exception_str = 'Unexpected error in ' + name + ':\n', e, \
                         sys.exc_info()[0]
         print(exception_str)
@@ -387,9 +385,10 @@ def load_rolls(path, name):
         return None, None, None, None, None, None
 
 
-def import_midi_from_folder(folder):
+def import_midi_from_folder(folder, load_from_pkl=False):
     # take the shortcut if allowed
-    if load_from_pickle_instead_of_midi:
+    if load_from_pkl:
+        pickle_load_path = folder
         V_train = pickle.load(open(pickle_load_path + "V_train.pickle", 'rb'))
         V_test = pickle.load(open(pickle_load_path + "V_test.pickle", 'rb'))
         D_train = pickle.load(open(pickle_load_path + "D_train.pickle", 'rb'))
