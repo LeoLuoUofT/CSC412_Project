@@ -24,7 +24,7 @@ VELOCITY_DIM = 1
 NUM_STYLES = 3
 LATENT_DIM = 64 # ??
 
-BATCH_SIZE = 1024 # bigger if possible, but might kill GPU
+BATCH_SIZE = 4096 # bigger if possible, but might kill GPU
 
 RNN_CELL = "gru"
 RNN_CELL_NUMBER = LATENT_DIM # this is a lot
