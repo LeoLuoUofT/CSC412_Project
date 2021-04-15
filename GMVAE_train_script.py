@@ -14,7 +14,7 @@ from collections import defaultdict
 
 from import_midi import import_midi_from_folder
 
-from project import *
+from project_functions import *
 
 # constant variables
 PITCH_DIM = 61
