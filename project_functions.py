@@ -544,7 +544,9 @@ class Model():
       data["pitch"], data["instrument"], data["velocity"], data["style"]
     
     style = style.expand(list(style_label.shape)[0], list(pitch.shape)[1], list(style_label.shape)[1])
-    x = torch.cat(pitch, instrument, velocity, dim=-1) 
+    x = torch.cat(pitch, instrument, velocity, dim=-1)
+    if self.use_cuda:
+      x= x.cuda()
     return_dict = self.model.style_transfer(x, style)
     
     x_pred = return_dict["decoder"]["x"]
@@ -555,6 +557,12 @@ class Model():
     velocity_pred = (velocity_pred + 1)/2 # is this correct? output of RNN should be in [0, 1]
     
     return pitch_pred.numpy(), instrument_pred.numpy(), velocity_pred.numpy() # is this good?
+
+  def load_weights(self, weights_path):
+    state = torch.load(weights_path)
+    self.model.load_state_dict(state)
+    print("Weights successfully loaded from", weights_path)
+    return True
 
 class music(Dataset):
     """music"""

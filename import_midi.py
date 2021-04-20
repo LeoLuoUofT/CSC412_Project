@@ -385,7 +385,7 @@ def load_rolls(path, name):
         return None, None, None, None, None, None
 
 
-def import_midi_from_folder(folder, load_from_pkl=False):
+def import_midi_from_folder(folder, load_from_pkl=False, class_list = None):
     # take the shortcut if allowed
     if load_from_pkl:
         pickle_load_path = folder
@@ -430,7 +430,7 @@ def import_midi_from_folder(folder, load_from_pkl=False):
 
                 shortpath = _path[len(folder):]
                 found = False
-                for i, c in enumerate(classes):
+                for i, c in enumerate(class_list):
                     if c.lower() in shortpath.lower():
                         found = True
                         print("Importing " + c + " song called " + _name)
