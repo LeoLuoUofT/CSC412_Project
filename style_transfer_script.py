@@ -101,10 +101,10 @@ argdict = {
 
 data_folder = "./full_pickles/"
 gmvae_weights_path = "output/model_95"
-classifier_weights_path = ""
+classifier_weights_path = "output/classifier/Apr_20_11/epoch6"
 
 class_list = ['Classic', 'Jazz', 'Pop']
-style_to = 0
+style_to = 2
 
 
 v, vt, _, _, _, _, i, it, _, _, \
@@ -112,18 +112,23 @@ v, vt, _, _, _, _, i, it, _, _, \
 print("data loaded from", data_folder)
     
 labels_test = []
-transfer_target_label = []
 for i in range(len(pt)):
-    temp_labels = [ct[i]] * p[i].shape[0]
+    temp_labels = [ct[i]] * pt[i].shape[0]
     labels_test.extend(temp_labels)
-    transfer_target_label.extend([style_to]*p[i].shape[0])
+
+transfer_target_label = [style_to] * len(labels_test)
+# print(type(labels_test), type(transfer_target_label))
+# print(transfer_target_label)
 
 vt = np.concatenate(vt, axis=0)[:,:,np.newaxis]
 pt = np.concatenate(pt, axis=0)
 it = np.zeros(vt.shape)
 
-test_data = music(pt, it, vt, transfer_target_label)
-test_dataloader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
+test_data = music(pt, it, vt, labels_test)
+test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
+
+test_data_transferred_labels = music(pt, it, vt, transfer_target_label)
+transferred_dataloader = DataLoader(test_data_transferred_labels, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
 print("loaders created")
 
@@ -133,14 +138,24 @@ gmvae_model.load_weights(gmvae_weights_path)
     
 classifier = MusicGRU(62, 256, 3)
 state = torch.load(classifier_weights_path)
-classifier.model.load_state_dict(state)
+classifier.load_state_dict(state)
 classifier = classifier.cuda()
+print("classifier instantiated")
 
-for batch in dataloader:
+transferred_predictions = torch.FloatTensor([])
+
+for batch in transferred_dataloader:
+    
     transferred_pitch, __, transferred_vel = gmvae_model.transfer(batch)
     x = torch.cat((transferred_pitch, transferred_vel), dim=-1)
-    x = x.cuda()
+    # x = x.cuda()
 
     output = classifier(x)
+    print(output[:20])
     pred = output.max(1,keepdim=True)[1]
-predicted_labels = classifier
+    transferred_predictions = torch.cat((transferred_predictions, pred.cpu()), axis=0)
+
+orig_acc, trans_acc = transferred_acc(transferred_predictions, labels_test, style_to)
+
+print("accuracy on original:{}".format(orig_acc))
+print("transferred songs predicted as target:{}".format(trans_acc))

@@ -313,7 +313,7 @@ class GMVAE(nn.Module):
 
     encoder_returns = self.encoder.forward_fixed_y(x, y_fixed)
     z = encoder_returns['z']
-    decoder_returns = self.decoder(z, y_fixed)
+    decoder_returns = self.decoder(z, y_fixed, x.shape[1])
     
     return_dict = {"encoder": encoder_returns, "decoder": decoder_returns}
     return return_dict
@@ -543,10 +543,15 @@ class Model():
     pitch, instrument, velocity, style = \
       data["pitch"], data["instrument"], data["velocity"], data["style"]
     
-    style = style.expand(list(style_label.shape)[0], list(pitch.shape)[1], list(style_label.shape)[1])
-    x = torch.cat(pitch, instrument, velocity, dim=-1)
+    # style = style.expand(list(style.shape)[0], list(pitch.shape)[1], list(style.shape)[1])
+    style = np.eye(3)[style] # convert to one hot
+    style = torch.from_numpy(style).float()
+    x = torch.cat((pitch, instrument, velocity), dim=-1)
+    # style = torch.unsqueeze(style, axis=1)
     if self.use_cuda:
-      x= x.cuda()
+      x = x.cuda()
+      style = style.cuda()
+
     return_dict = self.model.style_transfer(x, style)
     
     x_pred = return_dict["decoder"]["x"]
@@ -555,8 +560,10 @@ class Model():
 
     # renormalizing?
     velocity_pred = (velocity_pred + 1)/2 # is this correct? output of RNN should be in [0, 1]
-    
-    return pitch_pred.numpy(), instrument_pred.numpy(), velocity_pred.numpy() # is this good?
+    # pitch_pred, instrument_pred, velocity_pred = pitch_pred.cpu(), instrument_pred.cpu(), velocity_pred.cpu()
+    # return pitch_pred.detach().numpy(), instrument_pred.detach().numpy(), velocity_pred.detach().numpy() # is this good?
+
+    return pitch_pred, instrument_pred, velocity_pred
 
   def load_weights(self, weights_path):
     state = torch.load(weights_path)

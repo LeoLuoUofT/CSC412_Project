@@ -41,10 +41,10 @@ vt = np.concatenate(vt, axis=0)[:,:,np.newaxis]
 p = np.concatenate(p, axis=0)
 pt = np.concatenate(pt, axis=0)
 
-
 i = np.zeros(v.shape)
 it = np.zeros(vt.shape)
 
+#print(len(labels), v.shape, p.shape, i.shape)
 
 train_data = music(p, i, v, labels)
 train_dataloader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
@@ -57,8 +57,8 @@ model = MusicGRU(62, 256, 3)
 model = model.cuda()
 
 # to train model
-# print("beginning training")
-# train_network(model, train_dataloader, test_dataloader, num_epochs = NUM_EPOCHS, lr=1e-2)
+print("beginning training")
+train_network(model, train_dataloader, test_dataloader, num_epochs = NUM_EPOCHS, lr=1e-2)
 
 # to evaluate pretrained model
 # state = torch.load("output/classifier/Apr_19_2021_03")

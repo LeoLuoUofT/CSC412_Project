@@ -94,7 +94,29 @@ def get_accuracy(model, data_loader):
         total += labels.shape[0]
     return correct / total
 
-# def transferred_acc(predicted_labels, old_labels, expected_transfer):
+def transferred_acc(predicted_labels, old_labels, expected_transfer):
+    assert len(predicted_labels) == len(old_labels)
+    print(predicted_labels.unique(return_counts=True))
+    print(old_labels.count(0),old_labels.count(1), old_labels.count(2))
+    total_original = 0
+    total_transferred = 0
+
+    original_correct = 0
+    transferred_correct = 0
+
+    for i in range(len(predicted_labels)):
+        if old_labels[i] == expected_transfer: # original song is already style of transfer target
+            total_original += 1
+            if predicted_labels[i] == expected_transfer: # if we correctly predicted the reconstructed original as itself
+                original_correct += 1
+
+        else: # original song was not of the target style already, was transformed
+            total_transferred += 1
+            if predicted_labels[i] == expected_transfer: # case: our classifier predicts the transferred song is of target style
+                transferred_correct += 1
+    orig_acc = original_correct/total_original
+    trans_acc = transferred_correct/total_transferred
+    return orig_acc, trans_acc
 
 
 class MusicGRU(nn.Module):
